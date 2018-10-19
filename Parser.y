@@ -3,6 +3,7 @@
 %defines
 %define parser_class_name { Parser }
 %code requires {
+	#include "ASTnodes.hpp"
 	class ParseDriver;
 }
 %debug
@@ -22,16 +23,13 @@
 	AST_program *program;
 	AST_statement *statement;
 //	AST_command *command;
-	AST_statement_print *statement_print;
-	AST_statement_ifelse *statement_ifelse;
+	AST_cmd_print  *cmd_print;
+	AST_cmd_ifelse *cmd_ifelse;
 //	AST_expression *expression;
-	AST_variable *variable;
-	AST_assignment *assignment;
-	AST_numeric_literal *numeric_literal;
-	AST_binary_operator_add *binary_operator_add;
-	AST_binary_operator_subtract *binary_operator_subtract;
-	AST_binary_operator_equal *binary_operator_equal;
-	AST_binary_operator_not_equal *binary_operator_not_equal;
+	AST_exp_variable *variable;
+	AST_exp_assignment *assignment;
+	AST_exp_numeric_literal *numeric_literal;
+	AST_exp_binary_operator *binary_operator;
 };
 
 %{
@@ -61,8 +59,8 @@ void yy::Parser::error(const yy::Parser::location_type& l, const std::string& m)
 %left  '+'
 %left  '-'
 
-%printer	{ debug_stream() << *$$; } "identifier"
-%destructor	{ delete $$; } "identifier"
+%printer	{ debug_stream() << *$$; } "variable name"
+%destructor	{ delete $$; } "variable name"
 %printer	{ debug_stream() << $$; } "number"
 
 %%

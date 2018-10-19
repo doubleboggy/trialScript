@@ -67,13 +67,13 @@ void yy::Parser::error(const yy::Parser::location_type& l, const std::string& m)
 
 program		:
 			| program statement
-
+;
 statement	: command
 			| expression
-
+;
 command		: IF expression '{' program '}' ELSE '{' program '}'
 			| PRINT expression
-
+;
 expression	: NUMBER
 			| VARIABLE_NAME
 			| VARIABLE_NAME '=' expression

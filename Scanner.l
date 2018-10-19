@@ -28,6 +28,11 @@
 [\n]		{ yylloc->lines(yyleng); yylloc->step(); }
 [-+={}]		{ return yy::Parser::token_type (yytext[0]); }
 [0-9]+		{ yylval->ival = atoi(yytext); return token::NUMBER; }
+"=="		{ return token::EQUAL; }
+"!="		{ return token::NEQUAL; }
+"print"		{ return token::PRINT; }
+"if"		{ return token::IF; }
+"else"		{ return token::ELSE; }
 $[a-zA-Z]+[a-zA-Z0-9]*		{ yylval->sval = new std::string(yytext); return token::VARIABLE_NAME; }
 .			{ driver.error(*yylloc, "invalid charactor"); }
 %%

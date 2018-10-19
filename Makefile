@@ -2,7 +2,7 @@ CXX=g++
 BISON=bison
 FLEX=flex
 TARGET=scr_sample
-OBJS=Parser.o Scanner.o ParseDriver.o main.o
+OBJS=Parser.o Scanner.o ParseDriver.o main.o ASTnodes.o
 
 
 CFLAGS=-g -std=c++11 -Wno-deprecated-register

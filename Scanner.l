@@ -33,6 +33,6 @@
 "print"		{ return token::PRINT; }
 "if"		{ return token::IF; }
 "else"		{ return token::ELSE; }
-$[a-zA-Z]+[a-zA-Z0-9]*		{ yylval->sval = new std::string(yytext); return token::VARIABLE_NAME; }
+$[a-zA-Z][a-zA-Z0-9]*		{ yylval->sval = new std::string(yytext); return token::VARIABLE_NAME; }
 .			{ driver.error(*yylloc, "invalid charactor"); }
 %%

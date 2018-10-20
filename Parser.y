@@ -22,15 +22,24 @@
 	std::string *sval;
 	AST_program *program;
 	AST_statement *statement;
-//	AST_command *command;
-	AST_cmd_print  *cmd_print;
-	AST_cmd_ifelse *cmd_ifelse;
-//	AST_expression *expression;
-	AST_exp_variable *variable;
-	AST_exp_assignment *assignment;
-	AST_exp_numeric_literal *numeric_literal;
-	AST_exp_binary_operator *binary_operator;
+	AST_statement_list *statement_list;
+	AST_command *command;
+//	AST_cmd_print  *cmd_print;
+//	AST_cmd_ifelse *cmd_ifelse;
+	AST_expression *expression;
+//	AST_exp_variable *variable;
+//	AST_exp_assignment *assignment;
+//	AST_exp_numeric_literal *numeric_literal;
+//	AST_exp_binary_operator *binary_operator;
 };
+
+// -- move to later part
+%type <program> program "program"
+%type <statement_list> statement_list "statement_list"
+%type <statement> statement "statement"
+%type <command> command "command"
+%type <expression> expression "expression"
+// --
 
 %{
 
@@ -65,22 +74,27 @@ void yy::Parser::error(const yy::Parser::location_type& l, const std::string& m)
 
 %%
 
-program		:
-			| program statement
+program : statement_list { $$ = new AST_program($1); driver.program = $$; }
 ;
-statement	: command
-			| expression
+statement_list		: statement_list statement {
+								  $$->push_back($2);
+					}
+					| statement { $$ = new AST_statement_list();
+								  $$->push_back($1); }
 ;
-command		: IF expression '{' program '}' ELSE '{' program '}'
-			| PRINT expression
+statement	: command { $$ = $1; }
+			| expression { $$ = $1; }
 ;
-expression	: NUMBER
-			| VARIABLE_NAME
-			| VARIABLE_NAME '=' expression
-			| expression '+' expression
-			| expression '-' expression
-			| expression EQUAL  expression
-			| expression NEQUAL expression
+command		: IF expression '{' program '}' ELSE '{' program '}' { $$ = new AST_cmd_ifelse($2, $4, $8); }
+			| PRINT expression { $$ = new AST_cmd_print($2); }
+;
+expression	: NUMBER { $$ = new AST_exp_numeric_literal($1); }
+			| VARIABLE_NAME { $$ = new AST_exp_variable($1); }
+			| VARIABLE_NAME '=' expression { AST_exp_variable *var = new AST_exp_variable($1);$$ = new AST_exp_assignment(var, $3); }
+			| expression '+' expression { $$ = new AST_exp_binary_operator($1, AST_exp_binary_operator::add, $3); }
+			| expression '-' expression { $$ = new AST_exp_binary_operator($1, AST_exp_binary_operator::subtract, $3); }
+			| expression EQUAL  expression  { $$ = new AST_exp_binary_operator($1, AST_exp_binary_operator::equal, $3); }
+			| expression NEQUAL expression  { $$ = new AST_exp_binary_operator($1, AST_exp_binary_operator::not_equal, $3); }
 ;
 %%
 

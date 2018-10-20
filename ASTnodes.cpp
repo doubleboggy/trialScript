@@ -1,4 +1,5 @@
 #include "ASTnodes.hpp"
+#include <iostream>
 #include <string>
 #include <vector>
 #include <map>
@@ -16,11 +17,24 @@ int AST_program::accept(Visitor &v)
 {
 	return v.visit(this);
 }
-void AST_program::push_back(AST_statement *stmt)
+AST_program::AST_program(AST_statement_list *stmt_list)
+{
+	statement_list = stmt_list;
+}
+AST_program::~AST_program()
+{
+	delete statement_list;
+}
+// ----
+int AST_statement_list::accept(Visitor &v)
+{
+	return v.visit(this);
+}
+void AST_statement_list::push_back(AST_statement *stmt)
 {
 	statement_list.push_back(stmt);
 }
-AST_program::~AST_program()
+AST_statement_list::~AST_statement_list()
 {
 	for (auto it = statement_list.begin(); it != statement_list.end(); it++) {
 		delete *it;
@@ -71,9 +85,9 @@ int AST_exp_variable::accept(Visitor &v)
 {
 	return v.visit(this);
 }
-AST_exp_variable::AST_exp_variable(string nm)
+AST_exp_variable::AST_exp_variable(string *nm)
 {
-	variable_name = nm;
+	variable_name = *nm;
 }
 // ----
 int AST_exp_assignment::accept(Visitor &v)
@@ -112,7 +126,11 @@ AST_exp_binary_operator::~AST_exp_binary_operator()
 // ----
 int Visitor::visit(AST_program *program)
 {
-	for (auto it = program->statement_list.begin(); it != program->statement_list.end(); it++) {
+	return program->statement_list->accept(*this);
+}
+// ----
+int Visitor::visit(AST_statement_list *statement_list) {
+	for (auto it = statement_list->statement_list.begin(); it != statement_list->statement_list.end(); it++) {
 		(*it)->accept(*this);
 	}
 	return 0;
@@ -171,12 +189,14 @@ int Visitor::visit(AST_exp_binary_operator *exp_binary_operaotor)
 {
 	// this function covers following all binary operators
 	//  +, -, ==, !=
+	const char *op_string[] = { "none", "+", "-", "==", "!=" };
 	int ans = 0;
 	int op_kind = AST_exp_binary_operator::none;
 	int value1=0, value2=0;
 	
 	value1 = exp_binary_operaotor->expression1->accept(*this);
 	value2 = exp_binary_operaotor->expression2->accept(*this);
+	op_kind = exp_binary_operaotor->operator_kind;
 	if (op_kind == AST_exp_binary_operator::add) {
 		ans = value1 + value2;
 	} else if (op_kind == AST_exp_binary_operator::subtract) {
@@ -189,7 +209,6 @@ int Visitor::visit(AST_exp_binary_operator *exp_binary_operaotor)
 	
 	return ans;
 }
-
 
 
 

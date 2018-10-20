@@ -15,6 +15,7 @@ class Visitor;
 class AST_node;
 class AST_program;
 class AST_statement;		// no implement
+class AST_statement_list;
 class AST_command;			// no implement
 class AST_cmd_print;
 class AST_cmd_ifelse;
@@ -39,20 +40,26 @@ public:
 class AST_program : public AST_node
 {
 	friend class Visitor;
-	vector<AST_statement *> statement_list;
+	AST_statement_list *statement_list;
 public:
 	virtual int accept(Visitor &v);
-	void push_back(AST_statement *stmt);
+	AST_program(AST_statement_list *stmt_list);
 	virtual ~AST_program();
-	
 };
-
 // ///////////////////////////////////
 class AST_statement : public AST_node
 {
 	// no implement
 };
-
+class AST_statement_list : public AST_node
+{
+	friend class Visitor;
+	vector<AST_statement *> statement_list;
+public:
+	virtual int accept(Visitor &v);
+	void push_back(AST_statement *stmt);
+	virtual ~AST_statement_list();
+};
 // ///////////////////////////////////
 class AST_command : public AST_statement
 {
@@ -102,7 +109,7 @@ class AST_exp_variable : public AST_expression
 	string variable_name;
 public:
 	virtual int accept(Visitor &v);
-	AST_exp_variable(string nm);
+	AST_exp_variable(string *nm);
 };
 // ----
 class AST_exp_assignment : public AST_expression
@@ -116,7 +123,7 @@ public:
 	~AST_exp_assignment();
 };
 // ----
-class AST_exp_binary_operator : public AST_node
+class AST_exp_binary_operator : public AST_expression
 {
 	friend class Visitor;
 	AST_expression *expression1;
@@ -135,6 +142,7 @@ class Visitor
 {
 public:
 	int visit(AST_program *program);
+	int visit(AST_statement_list *statement_list);
 	int visit(AST_cmd_print *cmd_print);
 	int visit(AST_cmd_ifelse *cmd_ifelse);
 	int visit(AST_exp_variable *exp_variable);

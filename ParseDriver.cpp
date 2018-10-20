@@ -4,11 +4,13 @@ using namespace std;
 
 #include "ParseDriver.hpp"
 #include "Parser.hpp"
+#include "ASTnodes.hpp"
 
 ParseDriver::ParseDriver()
 	: trace_scanning(false), trace_parsing(false) {
 		variables["one"] = 1;
 		variables["two"] = 2;
+		program = 0;
 }
 
 ParseDriver::~ParseDriver() {
@@ -20,6 +22,12 @@ void ParseDriver::error(const yy::location& l,
 }
 
 void ParseDriver::run(const std::string &f) {
+	
+	if (program != 0) {
+		delete program;
+		program = 0;
+	}
+	
 	file = f;
 
 	ifstream ifs;
@@ -30,6 +38,11 @@ void ParseDriver::run(const std::string &f) {
 	yy::Parser *parser = new yy::Parser(*this);
 	parser->set_debug_level(trace_parsing);
 	parser->parse();
+	
+	if (program != 0) {
+		Visitor v;
+		program->accept(v);
+	}
 	
 	delete scanner;
 	delete parser;

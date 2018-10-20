@@ -5,6 +5,7 @@
 #include <map>
 #include "Parser.hpp"
 #include "Scanner.hpp"
+#include "ASTnodes.hpp"
 
 class ParseDriver {
 public:
@@ -13,6 +14,7 @@ public:
 	int result;
 	bool trace_scanning;
 	bool trace_parsing;
+	AST_program *program;
 
 	Scanner *scanner;
 
